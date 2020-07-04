@@ -24,8 +24,21 @@ namespace Shitemon.BattleSystem
             this.type_2 = type_2;
 
             this.moves = new Move[4];
-            for (int i = 0; i < 4; ++i)
-                this.moves[i] = new Move();
+        }
+
+        public void AssignMoves(string move1, string move2, string move3, string move4)
+        {
+            if (!string.IsNullOrEmpty(move1))
+                this.moves[0] = new Move(move1);
+
+            if (!string.IsNullOrEmpty(move2))
+                this.moves[1] = new Move(move2);
+
+            if (!string.IsNullOrEmpty(move3))
+                this.moves[2] = new Move(move3);
+
+            if (!string.IsNullOrEmpty(move4))
+                this.moves[3] = new Move(move4);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -17,6 +18,9 @@ namespace Shitemon.BattleSystem
         Rectangle r_player_healthbar;
         Rectangle r_enemy_healthbar;
 
+        SoundEffect bgm;
+        SoundEffectInstance bgm_instance;
+
         public BattleSystem(ContentManager contentManager)
         {
             this.r_sprite = new Rectangle(0, 0, 64, 64);
@@ -26,6 +30,10 @@ namespace Shitemon.BattleSystem
             this.healthbar = contentManager.Load<Texture2D>("ui/healthbar");
             this.r_player_healthbar = new Rectangle(10, 70, healthbar.Width, healthbar.Height);
             this.r_enemy_healthbar = new Rectangle(200, 20, healthbar.Width, healthbar.Height);
+
+            bgm = contentManager.Load<SoundEffect>("sound/battle");
+            bgm_instance = bgm.CreateInstance();
+            bgm_instance.Play();
         }
 
         public void Initialize(Mon player, Mon enemy)
@@ -33,6 +41,7 @@ namespace Shitemon.BattleSystem
             this.player = player;
             this.enemy = enemy;
         }
+
 
 
         // States can be:
@@ -48,6 +57,8 @@ namespace Shitemon.BattleSystem
         {
             this.state = state;
         }
+
+
 
         public bool UseMove(int index)
         {
@@ -70,6 +81,7 @@ namespace Shitemon.BattleSystem
             anim_f = 0;
         }
 
+        // Move animation fields
         public Texture2D anim_tex;
         public bool anim_active;
         public float anim_t;
@@ -105,9 +117,30 @@ namespace Shitemon.BattleSystem
             spriteBatch.Draw(enemy.sprite, r_enemy, r_sprite, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0f);
             spriteBatch.Draw(player.sprite, r_player, r_sprite, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
 
- 
-            spriteBatch.Draw(healthbar, r_player_healthbar, Color.Green);
-            spriteBatch.Draw(healthbar, r_enemy_healthbar, Color.Green);
+
+            // Render healthbar and color according to condition
+            if(player.stats.GetHealthPercentage() < 50)
+            {
+                if(player.stats.GetHealthPercentage() < 25)
+                    spriteBatch.Draw(healthbar, r_player_healthbar, Color.Red);
+                else
+                    spriteBatch.Draw(healthbar, r_player_healthbar, Color.Orange);
+            }
+            else
+                spriteBatch.Draw(healthbar, r_player_healthbar, Color.Green);
+            
+            if (enemy.stats.GetHealthPercentage() < 50)
+            {
+                if (enemy.stats.GetHealthPercentage() < 25)
+                    spriteBatch.Draw(healthbar, r_enemy_healthbar, Color.Red);
+                else
+                    spriteBatch.Draw(healthbar, r_enemy_healthbar, Color.Orange);
+            }
+            else
+                spriteBatch.Draw(healthbar, r_enemy_healthbar, Color.Green);
+            
+
+
 
             if (anim_active)
             {
