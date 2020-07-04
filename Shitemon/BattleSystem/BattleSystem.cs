@@ -61,7 +61,7 @@ namespace Shitemon.BattleSystem
                 return false;
             }
         }
-
+        
         public void SetMoveAnim(Texture2D tex)
         {
             anim_tex = tex;
