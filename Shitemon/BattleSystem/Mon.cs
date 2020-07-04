@@ -28,7 +28,7 @@ namespace Shitemon.BattleSystem
 
         public void AssignMoves(string move1, string move2, string move3, string move4)
         {
-            if(!string.IsNullOrEmpty(move1))
+            if (!string.IsNullOrEmpty(move1))
                 this.moves[0] = new Move(move1);
 
             if (!string.IsNullOrEmpty(move2))

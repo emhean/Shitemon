@@ -91,7 +91,8 @@ namespace Shitemon.BattleSystem
             {
                 for (int i = 0; i < 4; ++i)
                 {
-                    menu_moves[i].Render(spriteBatch, font, player.moves[i].name);
+                    if(!string.IsNullOrEmpty(player.moves[i].name))
+                        menu_moves[i].Render(spriteBatch, font, player.moves[i].name);
                 }
 
                 spriteBatch.Draw(tex_cursor, menu_moves[menu_index].pos - Vector2.UnitX * 10, Color.White);

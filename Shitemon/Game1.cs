@@ -72,10 +72,13 @@ namespace Shitemon
 
             var tex = Content.Load<Texture2D>("sprites/mon/planirt");
 
-            bs.Initialize(
-                new Mon("Planirt", tex, new Stats(30, 8, 6, 5), "Grass", string.Empty),
-                new Mon("Planirt", tex, new Stats(30, 8, 6, 5), "Grass", string.Empty)
-                );
+            var player = new Mon("Planirt", tex, new Stats(30, 8, 6, 5), "Grass", string.Empty);
+            var enemy = new Mon("Planirt", tex, new Stats(30, 8, 6, 5), "Grass", string.Empty);
+
+            bs.Initialize(player, enemy);
+
+            player.AssignMoves("Shock", "Electric Bolt", "Lightning Bolt", "Thunder");
+            enemy.AssignMoves("Shock", "Electric Bolt", "Lightning Bolt", "Thunder");
         }
 
         /// <summary>
