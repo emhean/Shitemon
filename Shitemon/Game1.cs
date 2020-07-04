@@ -73,8 +73,8 @@ namespace Shitemon
             var tex = Content.Load<Texture2D>("sprites/mon/planirt");
 
             bs.Initialize(
-                new Mon("planirt", tex, new Stats(30, 8, 6, 5), "grass", string.Empty),
-                new Mon("planirt", tex, new Stats(30, 8, 6, 5), "grass", string.Empty)
+                new Mon("Planirt", tex, new Stats(30, 8, 6, 5), "Grass", string.Empty),
+                new Mon("Planirt", tex, new Stats(30, 8, 6, 5), "Grass", string.Empty)
                 );
         }
 
