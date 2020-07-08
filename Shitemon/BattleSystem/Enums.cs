@@ -9,4 +9,16 @@
         Electric,
         Ground
     }
+
+    public enum MOVE_TYPE
+    {
+        NaN,
+        Damage,
+        Burn,
+        OHKO,
+        Buff_Atk,
+        Buff_Def,
+        Buff_Spd,
+        Heal
+    }
 }

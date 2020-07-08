@@ -9,7 +9,9 @@
         public int pp;
         public int damage;
         public int acc;
+
         public TYPECHART type;
+        public MOVE_TYPE move_type = MOVE_TYPE.NaN;
 
         public MoveDelegate moveDelegate;
 
@@ -24,7 +26,10 @@
                 this.acc = 100;
                 this.type = TYPECHART.Electric;
                 this.asset_name = "shock";
+
+                this.move_type = MOVE_TYPE.Damage;
                 this.moveDelegate = MoveDelegateBank.Shock;
+
             }
             else if (name.Equals("Discharge"))
             {
@@ -33,6 +38,8 @@
                 this.acc = 100;
                 this.type = TYPECHART.Electric;
                 this.asset_name = "discharge";
+
+                this.move_type = MOVE_TYPE.Damage;
                 this.moveDelegate = MoveDelegateBank.Shock;
             }
             else if (name.Equals("Thunder"))
@@ -42,6 +49,8 @@
                 this.acc = 95;
                 this.type = TYPECHART.Electric;
                 this.asset_name = "thunder";
+
+                this.move_type = MOVE_TYPE.Damage;
                 this.moveDelegate = MoveDelegateBank.Shock;
             }
             else if (name.Equals("Lightning Bolt"))
@@ -51,6 +60,8 @@
                 this.acc = 90;
                 this.type = TYPECHART.Electric;
                 this.asset_name = "lightning_bolt";
+
+                this.move_type = MOVE_TYPE.Damage;
                 this.moveDelegate = MoveDelegateBank.Shock;
             }
             else if (name.Equals("Lightning"))
@@ -60,6 +71,8 @@
                 this.acc = 75;
                 this.type = TYPECHART.Electric;
                 this.asset_name = "lightning";
+
+                this.move_type = MOVE_TYPE.Damage;
                 this.moveDelegate = MoveDelegateBank.Shock;
             }
 

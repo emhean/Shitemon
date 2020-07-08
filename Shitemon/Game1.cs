@@ -202,6 +202,8 @@ namespace Shitemon
 
                             if(hook_messageboxBackToDefault)
                                 q.Invoked += MessageBox_BackToDefault;
+
+                            
                         }
 
                         void QueueEnemy(bool hook_messageboxBackToDefault)

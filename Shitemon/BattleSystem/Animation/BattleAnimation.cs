@@ -14,15 +14,27 @@ namespace Shitemon.BattleSystem
         // Changes from one frame 0 to 1 and then next frame 1 to 0, repeat.
         int modulo = 0;
 
-        Texture2D anim_tex;
-        Rectangle destRect;
-        Rectangle sourceRect;
+        public bool effect_blink;
 
-        delegate void AnimUpdateDelegate(float delta);
-        AnimUpdateDelegate animUpdateDelegate;
+        public Texture2D anim_tex;
+        public Rectangle destRect;
+        public Rectangle sourceRect;
 
-        delegate void AnimRenderDelegate(SpriteBatch spriteBatch);
-        AnimRenderDelegate animRenderDelegate;
+        public delegate void AnimUpdateDelegate(BattleAnimation ba, float delta);
+        public AnimUpdateDelegate animUpdateDelegate;
+
+        public void HookUpdate(AnimUpdateDelegate animUpdateDelegate)
+        {
+            this.animUpdateDelegate = animUpdateDelegate;
+        }
+
+        public delegate void AnimRenderDelegate(BattleAnimation ba, SpriteBatch spriteBatch);
+        public AnimRenderDelegate animRenderDelegate;
+
+        public void HookRender(AnimRenderDelegate animRenderDelegate)
+        {
+            this.animRenderDelegate = animRenderDelegate;
+        }
 
         /// <summary>
         /// New instance for move animation.
@@ -33,26 +45,20 @@ namespace Shitemon.BattleSystem
             this.anim_tex = anim_tex;
             this.destRect = destRect;
             this.sourceRect = sourceRect;
-            this.animRenderDelegate += MoveBlinkRender;
         }
 
 
-        Mon mon; // the shitmon receiving the damage
-        int total_damage; // damage before hp reduction
-        BattleSystem bs;
+        public Mon mon; // the shitmon receiving the damage
+        public int total_damage; // damage before hp reduction
 
         /// <summary>
         /// New instance for healthbar animation.
         /// </summary>
         public BattleAnimation(BattleSystem bs, Mon mon, int total_damage)
         {
-            this.bs = bs;
             this.mon = mon;
-
             this.total_damage = total_damage;
             this.anim_duration = 4f; 
-
-            this.animUpdateDelegate += DamageUpdate;
         }
 
         public void Update(float delta)
@@ -67,51 +73,31 @@ namespace Shitemon.BattleSystem
 
             if (anim_time > anim_duration)
             {
-                //wait_for_completion = false;
                 anim_active = false;
             }
 
             if (animUpdateDelegate != null)
-                animUpdateDelegate.Invoke(delta);
+                animUpdateDelegate.Invoke(this, delta);
         }
 
-        bool IsModulo_Zero()
+        public bool IsModulo_Zero()
         {
             return (modulo == 0);
         }
 
         public void Render(SpriteBatch spriteBatch)
         {
-            if(animRenderDelegate != null)
-                animRenderDelegate.Invoke(spriteBatch);
-        }
-
-
-        void DamageUpdate(float delta)
-        {
-            if(IsModulo_Zero())
+            if (animRenderDelegate != null)
             {
-                mon.stats.ReduceHealth(1);
-                total_damage -= 1;
-
-                if (total_damage == 0)
-                {
-                    anim_duration = 1f;
-                    anim_time = 0f;
-
-                    animUpdateDelegate = null;
-                }
-            }
-
-        }
-
-
-        void MoveBlinkRender(SpriteBatch spriteBatch)
-        {
-            if (IsModulo_Zero())
-            {
-                spriteBatch.Draw(anim_tex, destRect, sourceRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0f);
+                if(effect_blink && IsModulo_Zero())
+                    animRenderDelegate.Invoke(this, spriteBatch);
+                else
+                    animRenderDelegate.Invoke(this, spriteBatch);
             }
         }
+
+
+
+
     }
 }

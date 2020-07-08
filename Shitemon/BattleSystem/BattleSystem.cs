@@ -43,7 +43,28 @@ namespace Shitemon.BattleSystem
 
             var anim_move = new BattleAnimation(2f, contentManager.Load<Texture2D>(str), target.renderData.sprite_dest, target.renderData.sprite_rect);
 
-            var anim_healthbar = new BattleAnimation(this, target, move.damage);
+            if(move.type == TYPECHART.Electric)
+            {
+                anim_move.HookRender(MoveDelegateBank.MoveBlinkRender);
+            }
+            else if (move.type == TYPECHART.Fire)
+            {
+
+            }
+
+
+            move.moveDelegate(user, target, move, out int damage);
+
+
+            var anim_healthbar = new BattleAnimation(this, target, damage);
+
+
+            if (move.move_type == MOVE_TYPE.Damage)
+            {
+                anim_healthbar.HookUpdate(MoveDelegateBank.DamageUpdate);
+            }
+
+ 
 
             BattleAnimation[] arr = new BattleAnimation[]
             {
