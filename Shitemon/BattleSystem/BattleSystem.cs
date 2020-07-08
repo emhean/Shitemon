@@ -42,10 +42,8 @@ namespace Shitemon.BattleSystem
 
 
             var anim_move = new BattleAnimation(2f, contentManager.Load<Texture2D>(str), target.renderData.sprite_dest, target.renderData.sprite_rect);
-            anim_move.wait_for_completion = true;
 
             var anim_healthbar = new BattleAnimation(this, target, move.damage);
-            anim_healthbar.wait_for_completion = true;
 
             BattleAnimation[] arr = new BattleAnimation[]
             {
@@ -105,7 +103,7 @@ namespace Shitemon.BattleSystem
         public void Update(float delta)
         {
             // If animations are queded we go in here else we advance states
-            if(effect_que.Count > 0)
+            if (effect_que.Count > 0)
             {
                 if (effect_que[0].Count == 0)
                 {
@@ -113,6 +111,9 @@ namespace Shitemon.BattleSystem
                 }
                 else
                 {
+
+                    bool wait = false;
+
                     for (int i = 0; i < effect_que[0].Count; ++i)
                     {
                         var m = effect_que[0][i];
@@ -123,57 +124,47 @@ namespace Shitemon.BattleSystem
                             {
                                 var anim = m.Animations[a];
 
-                                if (anim.anim_active )
+                                if (anim.anim_active)
                                 {
                                     m.OnAnimStarted(); // will only trigger once inside
                                     anim.Update(delta);
-                                }
 
-                                if (anim.wait_for_completion)
-                                {
-                                    Console.WriteLine("Waiting for anim to complete.");
-                                    break;
+                                    if (anim.anim_active)
+                                    {
+                                        Console.WriteLine("Waiting for anim to complete.");
+                                        wait = true;
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
 
-                    for (int i = 0; i < effect_que[0].Count; ++i)
+                    if (!wait)
                     {
-                        var m = effect_que[0][i];
-
-                        if (m.Animations != null)
+                        for (int i = 0; i < effect_que[0].Count; ++i)
                         {
-                            for (int a = 0; a < m.Animations.Length; ++a)
-                            {
-                                var anim = m.Animations[a];
+                            var m = effect_que[0][i];
 
-                                if (anim.wait_for_completion || anim.anim_active)
-                                {
-                                    break;
-                                }
-                                else
-                                {
-                                    if (m.Move.moveDelegate != null)
-                                        m.Move.moveDelegate.Invoke(m.User, m.Target, m.Move, out int damage);
+                            if (m.Move.moveDelegate != null)
+                                m.Move.moveDelegate.Invoke(m.User, m.Target, m.Move, out int damage);
 
-                                    m.OnInvoked();
-                                    m.OnRemoved();
-                                    effect_que[0].Remove(m);
-                                }
-                            }
+                            m.OnInvoked();
+                            m.OnRemoved();
+                            effect_que[0].Remove(m);
                         }
                     }
+
                 }
             }
             else // State stuff, advance states
             {
-                if(player.stats.GetHealthPercentage() == 0)
+                if (player.stats.GetHealthPercentage() == 0)
                 {
 
                 }
 
-                if(enemy.stats.GetHealthPercentage() == 0)
+                if (enemy.stats.GetHealthPercentage() == 0)
                 {
 
                 }
@@ -201,16 +192,16 @@ namespace Shitemon.BattleSystem
 
 
             // Render healthbar and color according to condition
-            if(player.stats.GetHealthPercentage() < 50)
+            if (player.stats.GetHealthPercentage() < 50)
             {
-                if(player.stats.GetHealthPercentage() < 25)
+                if (player.stats.GetHealthPercentage() < 25)
                     spriteBatch.Draw(player.renderData.healthbar_tex, player.renderData.healthbar_rect, Color.Red);
                 else
                     spriteBatch.Draw(player.renderData.healthbar_tex, player.renderData.healthbar_rect, Color.Orange);
             }
             else
                 spriteBatch.Draw(player.renderData.healthbar_tex, player.renderData.healthbar_rect, Color.Green);
-            
+
             if (enemy.stats.GetHealthPercentage() < 50)
             {
                 if (enemy.stats.GetHealthPercentage() < 25)
@@ -226,23 +217,21 @@ namespace Shitemon.BattleSystem
             // Removing anim if complete is done in Update logic and not Render logic.
             if (effect_que.Count > 0)
             {
-                for(int i = 0; i < effect_que[0].Count; ++i)
+                for (int i = 0; i < effect_que[0].Count; ++i)
                 {
-                    for(int a = 0; a < effect_que[0][i].Animations.Length; ++a)
+                    for (int a = 0; a < effect_que[0][i].Animations.Length; ++a)
                     {
                         var anim = effect_que[0][i].Animations[a];
 
-                        if(anim.anim_active)
+                        if (anim.anim_active)
                         {
                             anim.Render(spriteBatch);
-                        }
-
-                        if(anim.anim_active && anim.wait_for_completion)
-                        {
-                            return;
+                            break;
                         }
                     }
                 }
+                
+
             }
         }
     }

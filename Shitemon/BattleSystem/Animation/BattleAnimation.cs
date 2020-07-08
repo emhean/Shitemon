@@ -11,8 +11,6 @@ namespace Shitemon.BattleSystem
         // When this is set to false then animation has expired.
         public bool anim_active = true;
 
-        public bool wait_for_completion = false;
-
         // Changes from one frame 0 to 1 and then next frame 1 to 0, repeat.
         int modulo = 0;
 
@@ -98,7 +96,7 @@ namespace Shitemon.BattleSystem
 
                 if (total_damage == 0)
                 {
-                    anim_duration = 10f;
+                    anim_duration = 1f;
                     anim_time = 0f;
 
                     animUpdateDelegate = null;
