@@ -6,11 +6,13 @@ using System.Collections.Generic;
 namespace Shitemon
 {
     using BattleSystem;
+    using Microsoft.Xna.Framework.Audio;
+    using System;
 
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Game1 : Game
+    public partial class Game1 : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -72,13 +74,25 @@ namespace Shitemon
 
             var tex = Content.Load<Texture2D>("sprites/mon/planirt");
 
-            var player = new Mon("Planirt", tex, new Stats(30, 8, 6, 5), "Grass", string.Empty);
-            var enemy = new Mon("Planirt", tex, new Stats(30, 8, 6, 5), "Grass", string.Empty);
+
+            var hp_tex = Content.Load<Texture2D>("ui/healthbar");
+            var r_player_healthbar = new Rectangle(10, 70, hp_tex.Width, hp_tex.Height);
+            var r_enemy_healthbar = new Rectangle(200, 20, hp_tex.Width, hp_tex.Height);
+
+            MonRenderData player_renderData = new MonRenderData(tex, 
+                new Rectangle(50, 80, 64, 64), 
+                new Rectangle(0, 0, 64, 64), hp_tex, r_player_healthbar);
+            MonRenderData enemy_renderData = new MonRenderData(tex, 
+                new Rectangle(200, 30, 64, 64), 
+                new Rectangle(0, 0, 64, 64), hp_tex, r_enemy_healthbar);
+
+            var player = new Mon("Planirt", player_renderData, new Stats(100, 8, 6, 5), TYPECHART.Grass, TYPECHART.None);
+            var enemy = new Mon("Enemy Planirt", enemy_renderData, new Stats(100, 8, 6, 5), TYPECHART.Grass, TYPECHART.None);
 
             bs.Initialize(player, enemy);
 
-            player.AssignMoves("Shock", "Electric Bolt", "Lightning Bolt", "Thunder");
-            enemy.AssignMoves("Shock", "Electric Bolt", "Lightning Bolt", "Thunder");
+            player.AssignMoves("Shock", "Discharge", "", "");
+            enemy.AssignMoves("Shock", "", "", "");
         }
 
         /// <summary>
@@ -93,7 +107,36 @@ namespace Shitemon
         void Menu_BackToDefault()
         {
             msgbox.menu_current = "main";
-            msgbox.menu_index = 0;
+
+            // Here we set to 4 again because moves might have set it to something lower
+            msgbox.SetMaxIndex(4);
+
+            msgbox.ResetMenuIndex();
+        }
+
+
+
+
+        void MessageBox_UsedMove(object sender, EventArgs e)
+        {
+            var o = (MoveQueueObj)sender;
+
+            SoundEffect sfx;
+            sfx = Content.Load<SoundEffect>("sound/electric");
+            sfx.Play();
+
+            Console.WriteLine("Playing sfx...");
+
+            msgbox.menu_current = "text";
+
+            float m = Utils.GetTypechartModifier(o.Move, o.Target, out string message);
+
+            msgbox.text = string.Format("{0} used {1}!\n{2}!", o.User.name, o.Move.name, message);
+        }
+
+        void MessageBox_BackToDefault(object sender, EventArgs e)
+        {
+            Menu_BackToDefault();
         }
 
         /// <summary>
@@ -109,52 +152,105 @@ namespace Shitemon
             if (ks.IsKeyDown(Keys.Escape))
                 Exit();
 
-
-            if(ks.IsKeyDown(Keys.D) && p_ks.IsKeyUp(Keys.D))
+            if (bs.GetMoveQueueCount() == 0)
             {
-                msgbox.menu_index += 1;
-                if (msgbox.menu_index == 4)
-                    msgbox.menu_index = 0;
-            }
-            else if (ks.IsKeyDown(Keys.A) && p_ks.IsKeyUp(Keys.A))
-            {
-                msgbox.menu_index -= 1;
-                if (msgbox.menu_index == -1)
-                    msgbox.menu_index = 3;
-            }
-
-            if (ks.IsKeyDown(Keys.Q) && p_ks.IsKeyUp(Keys.Q))
-            {
-                if (msgbox.menu_current == "moves")
+                if (ks.IsKeyDown(Keys.D) && p_ks.IsKeyUp(Keys.D))
                 {
-                    Menu_BackToDefault();
+                    msgbox.NextMenuIndex();
                 }
-            }
-            if (ks.IsKeyDown(Keys.Space) && p_ks.IsKeyUp(Keys.Space))
-            {
-                if(msgbox.menu_current == "main" 
-                    && msgbox.menu_index == 0) // moves menu index
+                else if (ks.IsKeyDown(Keys.A) && p_ks.IsKeyUp(Keys.A))
                 {
-                    msgbox.menu_current = "moves";
+                    msgbox.PrevMenuIndex();
                 }
-                else if (msgbox.menu_current == "moves")
+
+                if (ks.IsKeyDown(Keys.Q) && p_ks.IsKeyUp(Keys.Q))
                 {
-                    if(bs.UseMove(msgbox.menu_index))
+                    if (msgbox.menu_current == "moves")
                     {
-                        bs.SetMoveAnim(Content.Load<Texture2D>("sprites/moves/shock"));
+                        Menu_BackToDefault();
                     }
+                }
 
-                    // anim of move
-                    // resolve effect of move
-                    // enemy use move
-                    // anim of enemy move
-                    // resolve effect of move
-                    // resolve effects
+                if (ks.IsKeyDown(Keys.Space) && p_ks.IsKeyUp(Keys.Space))
+                {
+                    // Get current selected menu item index.
+                    int menu_index = msgbox.GetMenuIndex();
 
-                    // set everything back to main menu and choice 0
-                    Menu_BackToDefault();
+                    if (msgbox.menu_current == "main" && menu_index == 0) // menu index of moves
+                    {
+                        // If here, moves was selected in main menu and therefore we prepare
+                        // for the next frame where moves are rendered.
+                        msgbox.menu_current = "moves";
+
+                        msgbox.SetMaxIndex(bs.GetPlayer().GetAssignedMovesCount());
+                    }
+                    else if (msgbox.menu_current == "moves")
+                    {
+                        var player = bs.GetPlayer();
+                        var enemy = bs.GetEnemy();
+
+                        bs.SetState(BattleSystem.BattleSystem.BATTLE_PHASES.Speed_Calc);
+
+                        bool player_first = false;
+
+                        void QueuePlayer()
+                        {
+                            // Player use move
+                            var q = bs.QueueMove(player.GetMoves()[menu_index], player, enemy, this.Content);
+
+                            q.AnimStarted += MessageBox_UsedMove;
+                            q.Invoked += MessageBox_BackToDefault;
+                        }
+
+                        void QueueEnemy()
+                        {
+                            // Enemy use move
+                            var rng_i_max = enemy.GetAssignedMovesCount();
+                            var rng_i = new Random().Next(0, rng_i_max); // enemy use 0-rng_i_max
+
+                            var q = bs.QueueMove(enemy.GetMoves()[rng_i], enemy, player, this.Content);
+
+                            q.AnimStarted += MessageBox_UsedMove;
+                            q.Invoked += MessageBox_BackToDefault;
+                        }
+
+
+                        if (player.stats.speed == enemy.stats.speed) // 50/50 to who strikes first
+                        {
+                            int rng_mod = new Random().Next(0, 2); // 0 or 1
+                            if (rng_mod == 1)
+                            {
+                                player_first = true;
+                            }
+                        }
+                        else if (player.stats.speed > enemy.stats.speed) // Player is faster
+                        {
+                            player_first = true;
+                        }
+                        else
+                            player_first = false;
+
+
+                        bs.SetState(BattleSystem.BattleSystem.BATTLE_PHASES.Select_Moves);
+                        if (player_first)
+                        {
+                            QueuePlayer();
+                            QueueEnemy();
+                        }
+                        else
+                        {
+                            QueueEnemy();
+                            QueuePlayer();
+                        }
+
+
+                        // set everything back to main menu and choice 0
+                        Menu_BackToDefault();
+                    }
                 }
             }
+
+
 
 
             bs.Update((float)gameTime.ElapsedGameTime.TotalSeconds);

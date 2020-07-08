@@ -57,16 +57,22 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="BattleSystem\Animation\BattleAnimation.cs" />
+    <Compile Include="BattleSystem\Animation\BattleAnimationEffect.cs" />
     <Compile Include="BattleSystem\BattleSystem.cs" />
     <Compile Include="BattleSystem\MessageBox.cs" />
     <Compile Include="BattleSystem\Mon.cs" />
+    <Compile Include="BattleSystem\MonRenderData.cs" />
     <Compile Include="BattleSystem\Move.cs" />
     <Compile Include="BattleSystem\MoveDelegateBank.cs" />
+    <Compile Include="BattleSystem\MoveQueueObj.cs" />
     <Compile Include="BattleSystem\Stats.cs" />
     <Compile Include="BattleSystem\UI.cs" />
+    <Compile Include="BattleSystem\Utilities.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="BattleSystem\SHITMON_TYPE.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

@@ -22,6 +22,35 @@ namespace Shitemon.BattleSystem
             this.speed_max = speed;
         }
 
+
+        public void ReduceHealth(int value)
+        {
+            // To prevent it from being less than 0,
+            //  we calculate beforehand if value will put health at below zero.
+            if (health - value < 0) 
+            {
+                health = 0;
+            }
+            else
+            {
+                health -= value;
+            }
+        }
+
+        public void RestoreHealth(int value)
+        {
+            // To prevent it from overflowing max value we calculate beforehand
+            if (health + value > health_max)
+            {
+                health = health_max;
+            }
+            else
+            {
+                health += value;
+            }
+        }
+        
+
         public int GetHealthPercentage()
         {
             return GetStatPercentage(health, health_max);
