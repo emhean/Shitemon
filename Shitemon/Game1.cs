@@ -193,16 +193,18 @@ namespace Shitemon
 
                         bool player_first = false;
 
-                        void QueuePlayer()
+                        void QueuePlayer(bool hook_messageboxBackToDefault)
                         {
                             // Player use move
                             var q = bs.QueueMove(player.GetMoves()[menu_index], player, enemy, this.Content);
 
                             q.AnimStarted += MessageBox_UsedMove;
-                            q.Invoked += MessageBox_BackToDefault;
+
+                            if(hook_messageboxBackToDefault)
+                                q.Invoked += MessageBox_BackToDefault;
                         }
 
-                        void QueueEnemy()
+                        void QueueEnemy(bool hook_messageboxBackToDefault)
                         {
                             // Enemy use move
                             var rng_i_max = enemy.GetAssignedMovesCount();
@@ -211,7 +213,9 @@ namespace Shitemon
                             var q = bs.QueueMove(enemy.GetMoves()[rng_i], enemy, player, this.Content);
 
                             q.AnimStarted += MessageBox_UsedMove;
-                            q.Invoked += MessageBox_BackToDefault;
+
+                            if (hook_messageboxBackToDefault)
+                                q.Invoked += MessageBox_BackToDefault;
                         }
 
 
@@ -234,13 +238,13 @@ namespace Shitemon
                         bs.SetState(BattleSystem.BattleSystem.BATTLE_PHASES.Select_Moves);
                         if (player_first)
                         {
-                            QueuePlayer();
-                            QueueEnemy();
+                            QueuePlayer(false);
+                            QueueEnemy(true);
                         }
                         else
                         {
-                            QueueEnemy();
-                            QueuePlayer();
+                            QueueEnemy(false);
+                            QueuePlayer(true);
                         }
 
 
