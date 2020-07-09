@@ -7,12 +7,11 @@ namespace Shitemon.BattleSystem
         // If animation is over then we invoke the move
         public BattleAnimation[] Animations { get; set; }
         public Move Move { get; set; }
-
         public Mon Target { get; set; }
         public Mon User { get; set; }
-
         public bool Expired { get; set; }
-        public event EventHandler<EventArgs> Invoking, Invoked;
+        public MoveResult MoveResult { get; set; }
+
         public event EventHandler<EventArgs> AnimStarted, AnimEnded;
         public event EventHandler<EventArgs> Removed;
 
@@ -31,15 +30,16 @@ namespace Shitemon.BattleSystem
             AnimEnded?.Invoke(this, EventArgs.Empty);
         }
 
-        public void OnInvoking()
-        {
-            Invoking?.Invoke(this, EventArgs.Empty);
-        }
+        //public event EventHandler<EventArgs> Invoking, Invoked;
+        //public void OnInvoking()
+        //{
+        //    Invoking?.Invoke(this, EventArgs.Empty);
+        //}
 
-        public void OnInvoked()
-        {
-            Invoked?.Invoke(this, EventArgs.Empty);
-        }
+        //public void OnInvoked()
+        //{
+        //    Invoked?.Invoke(this, EventArgs.Empty);
+        //}
 
         bool removed;
         public void OnRemoved()

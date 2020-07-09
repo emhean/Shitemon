@@ -38,9 +38,7 @@ namespace Shitemon.BattleSystem
             for (int i = 0; i < 4; ++i)
             {
                 if (moves[i] != null)
-                {
                     list.Add(moves[i]);
-                }
             }
 
             return list.ToArray();
@@ -48,16 +46,16 @@ namespace Shitemon.BattleSystem
 
         public int GetAssignedMovesCount()
         {
+            int count = 0;
+
             // This for loop gets the number of assigned moves up to maximum of 4.
-            for (int i = 0; i < 4; ++i)
+            for (int i = 0; i < moves.Length; ++i)
             {
-                if (moves[i] == null)
-                {
-                    return i;
-                }
+                if (moves[i] != null)
+                    count += 1;
             }
 
-            return 1;
+            return count;
         }
 
         public void AssignMoves(string move1, string move2, string move3, string move4)

@@ -66,6 +66,7 @@
     <Compile Include="BattleSystem\Move.cs" />
     <Compile Include="BattleSystem\MoveDelegateBank.cs" />
     <Compile Include="BattleSystem\MoveQueueObj.cs" />
+    <Compile Include="BattleSystem\MoveResult.cs" />
     <Compile Include="BattleSystem\Stats.cs" />
     <Compile Include="BattleSystem\UI.cs" />
     <Compile Include="BattleSystem\Utilities.cs" />

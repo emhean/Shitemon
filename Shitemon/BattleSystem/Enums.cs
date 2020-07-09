@@ -1,13 +1,21 @@
 ﻿namespace Shitemon.BattleSystem
 {
+    public enum EFFECTIVENESS
+    {
+        NotVeryEffective = 0,
+        Neutral = 1,
+        SuperEffective = 2
+    }
+
     public enum TYPECHART
     {
-        None,
-        Fire,
-        Grass,
-        Water,
-        Electric,
-        Ground
+        NaN,
+        Plant,
+        Plastic,
+        Undead,
+        Light,
+        Explosive,
+        Robotic,
     }
 
     public enum MOVE_TYPE

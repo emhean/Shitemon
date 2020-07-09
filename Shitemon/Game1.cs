@@ -86,12 +86,12 @@ namespace Shitemon
                 new Rectangle(200, 30, 64, 64), 
                 new Rectangle(0, 0, 64, 64), hp_tex, r_enemy_healthbar);
 
-            var player = new Mon("Planirt", player_renderData, new Stats(100, 8, 6, 5), TYPECHART.Grass, TYPECHART.None);
-            var enemy = new Mon("Enemy Planirt", enemy_renderData, new Stats(100, 8, 6, 5), TYPECHART.Grass, TYPECHART.None);
+            var player = new Mon("Planirt", player_renderData, new Stats(100, 8, 6, 7), TYPECHART.Plant, TYPECHART.NaN);
+            var enemy = new Mon("Enemy Planirt", enemy_renderData, new Stats(100, 8, 6, 5), TYPECHART.Plant, TYPECHART.NaN);
 
             bs.Initialize(player, enemy);
 
-            player.AssignMoves("Shock", "Discharge", "", "");
+            player.AssignMoves("Lightning", "", "", "");
             enemy.AssignMoves("Shock", "", "", "");
         }
 
@@ -106,7 +106,7 @@ namespace Shitemon
 
         void Menu_BackToDefault()
         {
-            msgbox.menu_current = "main";
+            msgbox.MenuCurrent = MessageBox.MessageboxMenus.Main;
 
             // Here we set to 4 again because moves might have set it to something lower
             msgbox.SetMaxIndex(4);
@@ -125,13 +125,36 @@ namespace Shitemon
             sfx = Content.Load<SoundEffect>("sound/electric");
             sfx.Play();
 
-            Console.WriteLine("Playing sfx...");
+            Console.WriteLine("Playing sfx.");
 
-            msgbox.menu_current = "text";
+            msgbox.MenuCurrent = MessageBox.MessageboxMenus.Text;
 
-            float m = Utils.GetTypechartModifier(o.Move, o.Target, out string message);
 
-            msgbox.text = string.Format("{0} used {1}!\n{2}!", o.User.name, o.Move.name, message);
+            //float m = Utils.GetTypechartModifier(o.Move, o.Target, out string message);
+            msgbox.QueueText(string.Format("{0} used {1}!!", o.User.name, o.Move.name), 120);
+
+            if ( !o.MoveResult.Hit)
+            {
+                msgbox.QueueText("It missed!", 60);
+            }
+            else // it did hit
+            {
+                if(o.MoveResult.CriticalHit)
+                {
+                    msgbox.QueueText("A critical hit!", 60);
+                }
+                //else
+                //{
+                //    msgbox.QueueText("It works!", 120);
+                //}
+            }
+
+            //if (o.MoveResult.OutputEffect == 1)
+            //{
+            //    msgbox.QueueText(string.Format("{0} was burned!", o.User.name), 60);
+            //}
+
+
         }
 
         void MessageBox_BackToDefault(object sender, EventArgs e)
@@ -165,7 +188,7 @@ namespace Shitemon
 
                 if (ks.IsKeyDown(Keys.Q) && p_ks.IsKeyUp(Keys.Q))
                 {
-                    if (msgbox.menu_current == "moves")
+                    if (msgbox.MenuCurrent == MessageBox.MessageboxMenus.Moves)
                     {
                         Menu_BackToDefault();
                     }
@@ -176,15 +199,15 @@ namespace Shitemon
                     // Get current selected menu item index.
                     int menu_index = msgbox.GetMenuIndex();
 
-                    if (msgbox.menu_current == "main" && menu_index == 0) // menu index of moves
+                    if (msgbox.MenuCurrent == MessageBox.MessageboxMenus.Main && menu_index == 0) // menu index of moves
                     {
                         // If here, moves was selected in main menu and therefore we prepare
                         // for the next frame where moves are rendered.
-                        msgbox.menu_current = "moves";
+                        msgbox.MenuCurrent = MessageBox.MessageboxMenus.Moves;
 
                         msgbox.SetMaxIndex(bs.GetPlayer().GetAssignedMovesCount());
                     }
-                    else if (msgbox.menu_current == "moves")
+                    else if (msgbox.MenuCurrent == MessageBox.MessageboxMenus.Moves)
                     {
                         var player = bs.GetPlayer();
                         var enemy = bs.GetEnemy();
@@ -198,12 +221,11 @@ namespace Shitemon
                             // Player use move
                             var q = bs.QueueMove(player.GetMoves()[menu_index], player, enemy, this.Content);
 
+                            // Hook events
                             q.AnimStarted += MessageBox_UsedMove;
 
                             if(hook_messageboxBackToDefault)
-                                q.Invoked += MessageBox_BackToDefault;
-
-                            
+                                q.Removed += MessageBox_BackToDefault;
                         }
 
                         void QueueEnemy(bool hook_messageboxBackToDefault)
@@ -211,13 +233,13 @@ namespace Shitemon
                             // Enemy use move
                             var rng_i_max = enemy.GetAssignedMovesCount();
                             var rng_i = new Random().Next(0, rng_i_max); // enemy use 0-rng_i_max
-
                             var q = bs.QueueMove(enemy.GetMoves()[rng_i], enemy, player, this.Content);
 
+                            // Hook events
                             q.AnimStarted += MessageBox_UsedMove;
 
                             if (hook_messageboxBackToDefault)
-                                q.Invoked += MessageBox_BackToDefault;
+                                q.Removed += MessageBox_BackToDefault;
                         }
 
 

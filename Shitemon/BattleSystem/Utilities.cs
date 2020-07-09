@@ -15,7 +15,7 @@
             float value = 1f; // 1 is neutral
 
             value = CalculateTable(s, r1);
-            if (r2 != TYPECHART.None)
+            if (r2 != TYPECHART.NaN)
                 value -= CalculateTable(s, r2);
 
             if (value > 1.0f)
@@ -37,41 +37,41 @@
 
         static public float CalculateTable(TYPECHART attacking, TYPECHART defending)
         {
-            if (attacking == TYPECHART.Fire)
-            {
-                if (defending == TYPECHART.Water) // not effective
-                    return 0.5f;
-                else if (defending == TYPECHART.Grass) // effective
-                    return 2f;
-            }
-            else if (attacking == TYPECHART.Grass)
-            {
-                if (defending == TYPECHART.Fire)//not effective
-                    return 0.5f;
-                else if (defending == TYPECHART.Water)
-                    return 2f;
-            }
-            else if (attacking == TYPECHART.Water)
-            {
-                if (defending == TYPECHART.Grass)//not effective
-                    return 0.5f;
-                else if (defending == TYPECHART.Fire)
-                    return 2f;
-            }
-            else if (attacking == TYPECHART.Electric)
-            {
-                if (defending == TYPECHART.Ground)//not effective
-                    return 0.5f;
-                else if (defending == TYPECHART.Water)
-                    return 2f;
-            }
-            else if (attacking == TYPECHART.Ground)
-            {
-                if (defending == TYPECHART.Grass)//not effective
-                    return 0.5f;
-                else if (defending == TYPECHART.Electric)
-                    return 2f;
-            }
+            //if (attacking == TYPECHART.Fire)
+            //{
+            //    if (defending == TYPECHART.Water) // not effective
+            //        return 0.5f;
+            //    else if (defending == TYPECHART.Grass) // effective
+            //        return 2f;
+            //}
+            //else if (attacking == TYPECHART.Grass)
+            //{
+            //    if (defending == TYPECHART.Fire)//not effective
+            //        return 0.5f;
+            //    else if (defending == TYPECHART.Water)
+            //        return 2f;
+            //}
+            //else if (attacking == TYPECHART.Water)
+            //{
+            //    if (defending == TYPECHART.Grass)//not effective
+            //        return 0.5f;
+            //    else if (defending == TYPECHART.Fire)
+            //        return 2f;
+            //}
+            //else if (attacking == TYPECHART.Electric)
+            //{
+            //    if (defending == TYPECHART.Ground)//not effective
+            //        return 0.5f;
+            //    else if (defending == TYPECHART.Water)
+            //        return 2f;
+            //}
+            //else if (attacking == TYPECHART.Ground)
+            //{
+            //    if (defending == TYPECHART.Grass)//not effective
+            //        return 0.5f;
+            //    else if (defending == TYPECHART.Electric)
+            //        return 2f;
+            //}
 
             return 1f;
         }

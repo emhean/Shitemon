@@ -32,6 +32,8 @@ namespace Shitemon.BattleSystem
             }
         }
 
+
+
         Texture2D tex;
         Rectangle rect;
         SpriteFont font;
@@ -39,7 +41,25 @@ namespace Shitemon.BattleSystem
         Vector2 pos;
         Texture2D tex_cursor;
 
-        public string text;
+
+        class TextQueueObject
+        {
+            public string text;
+            public int frames;
+
+            public TextQueueObject(string text, int frames)
+            {
+                this.text = text;
+                this.frames = frames;
+            }
+        }
+
+        List<TextQueueObject> textQueue = new List<TextQueueObject>();
+
+        public void QueueText(string text, int frames)
+        {
+            textQueue.Add(new TextQueueObject(text, frames));
+        }
 
         public MessageBox(Texture2D texture, Texture2D texture_cursor, SpriteFont font)
         {
@@ -54,27 +74,35 @@ namespace Shitemon.BattleSystem
             Init_MenuChoices();
         }
 
-        public string menu_current = "main";
+        public enum MessageboxMenus
+        {
+            Main,
+            Moves,
+            Text
+        }
+
+        public MessageboxMenus MenuCurrent = MessageboxMenus.Main;
 
         int menu_index = 0;
-        int menu_moves_maxIndex = 1; // to avoid selecting an index that does not have a move
+        int menu_maxIndex = 4; // to avoid selecting an index that does not have a move
+
 
         public void NextMenuIndex()
         {
             menu_index += 1;
-            if (menu_index == menu_moves_maxIndex)
+            if (menu_index == menu_maxIndex)
                 menu_index = 0;
         }
         public void PrevMenuIndex()
         {
             menu_index -= 1;
             if (menu_index == -1)
-                menu_index = menu_moves_maxIndex - 1;
+                menu_index = menu_maxIndex - 1;
         }
 
         public void SetMaxIndex(int value)
         {
-            menu_moves_maxIndex = value;
+            menu_maxIndex = value;
         }
 
         public int GetMenuIndex()
@@ -112,7 +140,7 @@ namespace Shitemon.BattleSystem
 
         public void Render_Menu(SpriteBatch spriteBatch, Mon player)
         {
-            if (menu_current == "main")
+            if (MenuCurrent == MessageboxMenus.Main)
             {
                 for (int i = 0; i < 4; ++i)
                 {
@@ -121,7 +149,7 @@ namespace Shitemon.BattleSystem
 
                 spriteBatch.Draw(tex_cursor, menu_main[menu_index].pos - Vector2.UnitX * 10, Color.White);
             }
-            else if (menu_current == "moves")
+            else if (MenuCurrent == MessageboxMenus.Moves)
             {
                 var moves = player.GetMoves();
 
@@ -133,9 +161,16 @@ namespace Shitemon.BattleSystem
 
                 spriteBatch.Draw(tex_cursor, menu_moves[menu_index].pos - Vector2.UnitX * 10, Color.White);
             }
-            else if (menu_current == "text")  // custom text, no menus
+            else if (MenuCurrent == MessageboxMenus.Text)  // custom text, no menus
             {
-                spriteBatch.DrawString(font, text, pos, Color.Black);
+                if(textQueue.Count > 0)
+                {
+                    spriteBatch.DrawString(font, textQueue[0].text, pos, Color.Black);
+
+                    textQueue[0].frames -= 1;
+                    if (textQueue[0].frames <= 0)
+                        textQueue.RemoveAt(0);
+                }
             }
         }
 

@@ -4,6 +4,8 @@ namespace Shitemon.BattleSystem
 {
     public class Stats
     {
+        public int level = 1;
+
         public int health, health_max;
         public int attack, attack_max;
         public int defence, defence_max;

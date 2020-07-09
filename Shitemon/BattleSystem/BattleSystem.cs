@@ -21,13 +21,16 @@ namespace Shitemon.BattleSystem
 
         SoundEffect bgm;
         SoundEffectInstance bgm_instance;
-
+        SpriteFont font;
 
         public BattleSystem(ContentManager contentManager)
         {
             bgm = contentManager.Load<SoundEffect>("sound/battle");
             bgm_instance = bgm.CreateInstance();
+            bgm_instance.IsLooped = true;
             bgm_instance.Play();
+
+            font = contentManager.Load<SpriteFont>("fonts/text");
         }
 
         public void Initialize(Mon player, Mon enemy)
@@ -43,18 +46,21 @@ namespace Shitemon.BattleSystem
 
             var anim_move = new BattleAnimation(2f, contentManager.Load<Texture2D>(str), target.renderData.sprite_dest, target.renderData.sprite_rect);
 
-            if(move.type == TYPECHART.Electric)
-            {
-                anim_move.HookRender(MoveDelegateBank.MoveBlinkRender);
-            }
-            else if (move.type == TYPECHART.Fire)
-            {
 
-            }
+            // TODO: Implement more animations
+            anim_move.HookRender(MoveDelegateBank.MoveBlinkRender);
+            //if(move.type == TYPECHART.Robotic)
+            //{
+            //    anim_move.HookRender(MoveDelegateBank.MoveBlinkRender);
+            //}
+            //else if (move.type == TYPECHART.Fire)
+            //{
+
+            //}
 
 
-            move.moveDelegate(user, target, move, out int damage);
-
+            // Invoke move delegate and save the result
+            var moveResult = move.moveDelegate(user, target, move, out int damage);
 
             var anim_healthbar = new BattleAnimation(this, target, damage);
 
@@ -77,6 +83,7 @@ namespace Shitemon.BattleSystem
             {
                 Animations = arr,
                 Move = move,
+                MoveResult = moveResult,
                 User = user,
                 Target = target
             };
@@ -152,7 +159,7 @@ namespace Shitemon.BattleSystem
 
                                     if (anim.anim_active)
                                     {
-                                        Console.WriteLine("Waiting for anim to complete.");
+                                        //Console.WriteLine("Waiting for anim to complete.");
                                         wait = true;
                                         break;
                                     }
@@ -167,10 +174,11 @@ namespace Shitemon.BattleSystem
                         {
                             var m = effect_que[0][i];
 
-                            if (m.Move.moveDelegate != null)
-                                m.Move.moveDelegate.Invoke(m.User, m.Target, m.Move, out int damage);
+                            // This is now done in queue move.
+                            //if (m.Move.moveDelegate != null)
+                            //    m.Move.moveDelegate.Invoke(m.User, m.Target, m.Move, out int damage);
+                            //m.OnInvoked();
 
-                            m.OnInvoked();
                             m.OnRemoved();
                             effect_que[0].Remove(m);
                         }
@@ -194,11 +202,28 @@ namespace Shitemon.BattleSystem
             Update_UI();
         }
 
+        private void Update_UI_Level(Mon mon)
+        {
+            if (mon.renderData.level_i != mon.stats.level)
+            {
+                mon.renderData.level_str = string.Format("Lv{0}", mon.stats.level);
+
+                mon.renderData.level_i = mon.stats.level; // to preserve string creations
+            }
+        }
+
+        private void Update_UI_Healthbar(Mon mon)
+        {
+            mon.renderData.healthbar_rect.Width = mon.stats.GetHealthPercentage();
+        }
 
         private void Update_UI()
         {
-            player.renderData.healthbar_rect.Width = player.stats.GetHealthPercentage();
-            enemy.renderData.healthbar_rect.Width = enemy.stats.GetHealthPercentage();
+            Update_UI_Healthbar(player);
+            Update_UI_Healthbar(enemy);
+
+            Update_UI_Level(player);
+            Update_UI_Level(enemy);
         }
 
 
@@ -234,6 +259,10 @@ namespace Shitemon.BattleSystem
                 spriteBatch.Draw(player.renderData.healthbar_tex, enemy.renderData.healthbar_rect, Color.Green);
 
 
+            // Render mon levels
+            spriteBatch.DrawString(font, enemy.renderData.level_str, enemy.renderData.level_pos, Color.Black);
+            spriteBatch.DrawString(font, player.renderData.level_str, player.renderData.level_pos, Color.Black);
+
 
             // Removing anim if complete is done in Update logic and not Render logic.
             if (effect_que.Count > 0)
@@ -251,9 +280,8 @@ namespace Shitemon.BattleSystem
                         }
                     }
                 }
-                
-
             }
+
         }
     }
 }
