@@ -152,7 +152,9 @@ namespace Shitemon.BattleSystem
                             animRenderDelegate = BattleAnimation.Render_DeathAnimation
                         };
 
-                        e.AnimEnded += Me
+                        // TODO: Some animation I don't remember what I was doing here 4 months ago.
+                        // ?? e.AnimEnded += Me
+
                         var list = new List<EffectQueueObject>
                         {
                             e
