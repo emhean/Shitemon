@@ -64,6 +64,7 @@
     <Compile Include="BattleSystem\Mon.cs" />
     <Compile Include="BattleSystem\MonRenderData.cs" />
     <Compile Include="BattleSystem\Move.cs" />
+    <Compile Include="BattleSystem\MoveArgs.cs" />
     <Compile Include="BattleSystem\MoveDelegateBank.cs" />
     <Compile Include="BattleSystem\MoveQueueObj.cs" />
     <Compile Include="BattleSystem\MoveResult.cs" />
@@ -74,6 +75,12 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BattleSystem\Enums.cs" />
+    <Compile Include="Test\AnimationQ.cs" />
+    <Compile Include="Test\MoveQ.cs" />
+    <Compile Include="Test\QueueManager.cs" />
+    <Compile Include="Test\QueueObject.cs" />
+    <Compile Include="Test\QueueTest.cs" />
+    <Compile Include="Test\QueueTimer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

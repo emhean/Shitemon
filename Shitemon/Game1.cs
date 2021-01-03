@@ -9,6 +9,108 @@ namespace Shitemon
     using Microsoft.Xna.Framework.Audio;
     using System;
 
+    // Utility methods
+    public partial class Game1
+    {
+        void QueuePlayer(Mon enemy, Mon player, int menu_index, bool hook_messageboxBackToDefault)
+        {
+            // Player use move
+            var q = bs.QueueMove(
+                new MoveArgs(player.GetMoves()[menu_index], player, enemy),
+                this.Content);
+
+            // Hook events
+            q.AnimStarted += MessageBox_UsedMove;
+
+            if (hook_messageboxBackToDefault)
+                q.Removed += MessageBox_BackToDefault;
+        }
+
+        void QueueEnemy(Mon enemy, Mon player, bool hook_messageboxBackToDefault)
+        {
+            // Enemy use move
+            var rng_i_max = enemy.GetAssignedMovesCount();
+            var rng_i = new Random().Next(0, rng_i_max); // enemy use 0-rng_i_max
+
+            var q = bs.QueueMove(new MoveArgs(enemy.GetMoves()[rng_i], enemy, player),
+                this.Content);
+
+            // Hook events
+            q.AnimStarted += MessageBox_UsedMove;
+
+            if (hook_messageboxBackToDefault)
+                q.Removed += MessageBox_BackToDefault;
+        }
+
+
+        void Menu_BackToDefault()
+        {
+            msgbox.MenuCurrent = MessageBox.MessageboxMenus.Main;
+
+            // Here we set to 4 again because moves might have set it to something lower
+            msgbox.SetMaxIndex(4);
+
+            msgbox.ResetMenuIndex();
+        }
+
+
+        // This method requires at least 190 IQ to understand.
+        // Srsly tho it's basically Menu_BackToDefault() except it can be hooked as an event.
+        void MessageBox_BackToDefault(object sender, EventArgs e)
+        {
+            if(sender is EffectQueueObject q)
+            {
+                Console.WriteLine("Phase end");
+            }
+
+            Menu_BackToDefault();
+        }
+
+
+        void MessageBox_UsedMove(object sender, EventArgs e)
+        {
+            var o = (EffectQueueObject)sender;
+
+            SoundEffect sfx;
+            sfx = Content.Load<SoundEffect>("sound/electric");
+            sfx.Play();
+
+            Console.WriteLine("Playing sfx.");
+
+            msgbox.MenuCurrent = MessageBox.MessageboxMenus.Text;
+
+
+            //float m = Utils.GetTypechartModifier(o.Move, o.Target, out string message);
+            msgbox.QueueText(string.Format("{0} used {1}!!", o.User.name, o.Move.name), 120);
+
+            if (!o.MoveResult.Hit)
+            {
+                msgbox.QueueText("It missed!", 60);
+            }
+            else // it did hit
+            {
+                if (o.MoveResult.CriticalHit)
+                {
+                    msgbox.QueueText("A critical hit!", 60);
+                }
+                //else
+                //{
+                //    msgbox.QueueText("It works!", 120);
+                //}
+            }
+
+            //if (o.MoveResult.OutputEffect == 1)
+            //{
+            //    msgbox.QueueText(string.Format("{0} was burned!", o.User.name), 60);
+            //}
+
+            
+
+        }
+
+
+    }
+
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
@@ -86,13 +188,14 @@ namespace Shitemon
                 new Rectangle(200, 30, 64, 64), 
                 new Rectangle(0, 0, 64, 64), hp_tex, r_enemy_healthbar);
 
-            var player = new Mon("Planirt", player_renderData, new Stats(100, 8, 6, 7), TYPECHART.Plant, TYPECHART.NaN);
-            var enemy = new Mon("Enemy Planirt", enemy_renderData, new Stats(100, 8, 6, 5), TYPECHART.Plant, TYPECHART.NaN);
+            var player = new Mon("Planirt", player_renderData, new Stats(100, 8, 6, 4), TYPECHART.Plant, TYPECHART.NaN);
+            var enemy = new Mon("Enemy Planirt", enemy_renderData, new Stats(100, 8, 6, 3), TYPECHART.Plant, TYPECHART.NaN);
+
+            player.AssignMoves("Shock", "Dick Slam", "", "");
+            enemy.AssignMoves("Shock", "", "", "");
+
 
             bs.Initialize(player, enemy);
-
-            player.AssignMoves("Lightning", "", "", "");
-            enemy.AssignMoves("Shock", "", "", "");
         }
 
         /// <summary>
@@ -104,63 +207,7 @@ namespace Shitemon
             // TODO: Unload any non ContentManager content here
         }
 
-        void Menu_BackToDefault()
-        {
-            msgbox.MenuCurrent = MessageBox.MessageboxMenus.Main;
 
-            // Here we set to 4 again because moves might have set it to something lower
-            msgbox.SetMaxIndex(4);
-
-            msgbox.ResetMenuIndex();
-        }
-
-
-
-
-        void MessageBox_UsedMove(object sender, EventArgs e)
-        {
-            var o = (MoveQueueObj)sender;
-
-            SoundEffect sfx;
-            sfx = Content.Load<SoundEffect>("sound/electric");
-            sfx.Play();
-
-            Console.WriteLine("Playing sfx.");
-
-            msgbox.MenuCurrent = MessageBox.MessageboxMenus.Text;
-
-
-            //float m = Utils.GetTypechartModifier(o.Move, o.Target, out string message);
-            msgbox.QueueText(string.Format("{0} used {1}!!", o.User.name, o.Move.name), 120);
-
-            if ( !o.MoveResult.Hit)
-            {
-                msgbox.QueueText("It missed!", 60);
-            }
-            else // it did hit
-            {
-                if(o.MoveResult.CriticalHit)
-                {
-                    msgbox.QueueText("A critical hit!", 60);
-                }
-                //else
-                //{
-                //    msgbox.QueueText("It works!", 120);
-                //}
-            }
-
-            //if (o.MoveResult.OutputEffect == 1)
-            //{
-            //    msgbox.QueueText(string.Format("{0} was burned!", o.User.name), 60);
-            //}
-
-
-        }
-
-        void MessageBox_BackToDefault(object sender, EventArgs e)
-        {
-            Menu_BackToDefault();
-        }
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -216,32 +263,37 @@ namespace Shitemon
 
                         bool player_first = false;
 
-                        void QueuePlayer(bool hook_messageboxBackToDefault)
-                        {
-                            // Player use move
-                            var q = bs.QueueMove(player.GetMoves()[menu_index], player, enemy, this.Content);
+                        #region These methods are now in Game1 instead of nested here.
+                        //void QueuePlayer(bool hook_messageboxBackToDefault)
+                        //{
+                        //    // Player use move
+                        //    var q = bs.QueueMove(
+                        //        new MoveArgs(player.GetMoves()[menu_index], player, enemy), 
+                        //        this.Content);
 
-                            // Hook events
-                            q.AnimStarted += MessageBox_UsedMove;
+                        //    // Hook events
+                        //    q.AnimStarted += MessageBox_UsedMove;
 
-                            if(hook_messageboxBackToDefault)
-                                q.Removed += MessageBox_BackToDefault;
-                        }
+                        //    if(hook_messageboxBackToDefault)
+                        //        q.Removed += MessageBox_BackToDefault;
+                        //}
 
-                        void QueueEnemy(bool hook_messageboxBackToDefault)
-                        {
-                            // Enemy use move
-                            var rng_i_max = enemy.GetAssignedMovesCount();
-                            var rng_i = new Random().Next(0, rng_i_max); // enemy use 0-rng_i_max
-                            var q = bs.QueueMove(enemy.GetMoves()[rng_i], enemy, player, this.Content);
+                        //void QueueEnemy(bool hook_messageboxBackToDefault)
+                        //{
+                        //    // Enemy use move
+                        //    var rng_i_max = enemy.GetAssignedMovesCount();
+                        //    var rng_i = new Random().Next(0, rng_i_max); // enemy use 0-rng_i_max
 
-                            // Hook events
-                            q.AnimStarted += MessageBox_UsedMove;
+                        //    var q = bs.QueueMove(new MoveArgs(enemy.GetMoves()[rng_i], enemy, player), 
+                        //        this.Content);
 
-                            if (hook_messageboxBackToDefault)
-                                q.Removed += MessageBox_BackToDefault;
-                        }
+                        //    // Hook events
+                        //    q.AnimStarted += MessageBox_UsedMove;
 
+                        //    if (hook_messageboxBackToDefault)
+                        //        q.Removed += MessageBox_BackToDefault;
+                        //}
+                        #endregion
 
                         if (player.stats.speed == enemy.stats.speed) // 50/50 to who strikes first
                         {
@@ -262,13 +314,21 @@ namespace Shitemon
                         bs.SetState(BattleSystem.BattleSystem.BATTLE_PHASES.Select_Moves);
                         if (player_first)
                         {
-                            QueuePlayer(false);
-                            QueueEnemy(true);
+                            // Used to be this before methods were un-nested.
+                            //QueuePlayer(false);
+                            //QueueEnemy(true);
+
+                            QueuePlayer(enemy, player, menu_index, false);
+                            QueueEnemy(enemy, player, true);
                         }
                         else
                         {
-                            QueueEnemy(false);
-                            QueuePlayer(true);
+                            // Used to be this before methods were un-nested.
+                            //QueueEnemy(false);
+                            //QueuePlayer(true);
+
+                            QueueEnemy(enemy, player, false);
+                            QueuePlayer(enemy, player, menu_index, true);
                         }
 
 

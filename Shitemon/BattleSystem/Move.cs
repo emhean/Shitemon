@@ -4,7 +4,7 @@ namespace Shitemon.BattleSystem
 {
     public class Move
     {
-        public delegate MoveResult MoveDelegate(Mon user, Mon target, Move move_used, out int damage);
+        public delegate MoveResult MoveDelegate(MoveArgs moveArgs);
 
         public string name;
         public string asset_name;
@@ -22,7 +22,19 @@ namespace Shitemon.BattleSystem
         {
             this.name = name;
 
-            if(name.Equals("Shock"))
+            if (name.Equals("Dick Slam"))
+            {
+                this.pp = 40;
+                this.damage = 77;
+                this.acc = 100;
+                this.type = TYPECHART.Robotic;
+                this.asset_name = "shock";
+
+                this.move_type = MOVE_TYPE.Damage;
+                this.moveDelegate = MoveDelegateBank.Shock;
+            }
+
+            if (name.Equals("Shock"))
             {
                 this.pp = 40;
                 this.damage = 10;

@@ -1,6 +1,6 @@
 ﻿namespace Shitemon.BattleSystem
 {
-    public struct MoveResult
+    public class MoveResult
     {
         public MoveResult(bool missed, bool critical_hit, int outputDamage, int outputEffect)
         {
@@ -16,6 +16,7 @@
         public bool Hit { get; set; }
 
         public bool CriticalHit { get; set; }
+        public bool Lethal { get; set; }
         public int OutputDamage { get; set; }
         public int OutputEffect { get; set; }
     }

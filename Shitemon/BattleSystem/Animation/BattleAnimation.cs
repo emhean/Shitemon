@@ -11,10 +11,24 @@ namespace Shitemon.BattleSystem
         // When this is set to false then animation has expired.
         public bool anim_active = true;
 
+        public bool Expired => !(anim_time > anim_duration);
+
+        public void Start()
+        {
+            anim_active = true;
+        }
+
+        public void Stop()
+        {
+            anim_active = false;
+        }
+
         // Changes from one frame 0 to 1 and then next frame 1 to 0, repeat.
         int modulo = 0;
 
         public bool effect_blink;
+
+        
 
         public Texture2D anim_tex;
         public Rectangle destRect;
@@ -61,6 +75,15 @@ namespace Shitemon.BattleSystem
             this.anim_duration = 4f; 
         }
 
+        /// <summary>
+        /// New instance for death animation.
+        /// </summary>
+        public BattleAnimation(BattleSystem bs, Mon mon, float anim_duration)
+        {
+            this.mon = mon;
+            this.anim_duration = anim_duration;
+        }
+
         public void Update(float delta)
         {
             anim_time += delta;
@@ -96,8 +119,9 @@ namespace Shitemon.BattleSystem
             }
         }
 
-
-
-
+        public static void Render_DeathAnimation(BattleAnimation ba, SpriteBatch spriteBatch)
+        {
+            ba.mon.renderData.sprite_dest.Y += 10;
+        }
     }
 }

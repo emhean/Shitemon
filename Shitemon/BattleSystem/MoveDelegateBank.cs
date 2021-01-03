@@ -59,6 +59,9 @@ namespace Shitemon.BattleSystem
                     ba.anim_duration = 1f;
                     ba.anim_time = 0f;
                     ba.animUpdateDelegate = null;
+
+                   
+
                     return; // Fast exit
                 }
 
@@ -75,19 +78,19 @@ namespace Shitemon.BattleSystem
         }
 
 
-        static public MoveResult Shock(Mon user, Mon target, Move move, out int damage)
+        static public MoveResult Shock(MoveArgs moveArgs)
         {
-            bool crit = RollCrit(move);
-            bool hit = RollAccuracy(move);
+            bool crit = RollCrit(moveArgs.MoveUsed);
+            bool hit = RollAccuracy(moveArgs.MoveUsed);
 
-            damage = 0;
+            int damage = 0;
 
             if(hit)
             {
                 if (crit)
-                    damage = (user.stats.attack + move.damage);
+                    damage = (moveArgs.User.stats.attack + moveArgs.MoveUsed.damage);
                 else
-                    damage = (user.stats.attack + move.damage) - (target.stats.defence);
+                    damage = (moveArgs.User.stats.attack + moveArgs.MoveUsed.damage) - (moveArgs.Target.stats.defence);
             }
 
             return new MoveResult(hit, crit, damage, 0);

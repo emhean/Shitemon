@@ -2,7 +2,7 @@
 
 namespace Shitemon.BattleSystem
 {
-    public class MoveQueueObj
+    public class EffectQueueObject
     {
         // If animation is over then we invoke the move
         public BattleAnimation[] Animations { get; set; }
@@ -10,6 +10,10 @@ namespace Shitemon.BattleSystem
         public Mon Target { get; set; }
         public Mon User { get; set; }
         public bool Expired { get; set; }
+
+        /// <summary>
+        /// The results of the move.
+        /// </summary>
         public MoveResult MoveResult { get; set; }
 
         public event EventHandler<EventArgs> AnimStarted, AnimEnded;

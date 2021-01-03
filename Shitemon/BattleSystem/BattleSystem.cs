@@ -17,7 +17,7 @@ namespace Shitemon.BattleSystem
         public Mon GetEnemy() => enemy;
 
         // Animation and move and effect queue
-        List<List<MoveQueueObj>> effect_que = new List<List<MoveQueueObj>>();
+        List<List<EffectQueueObject>> effect_que = new List<List<EffectQueueObject>>();
 
         SoundEffect bgm;
         SoundEffectInstance bgm_instance;
@@ -39,33 +39,25 @@ namespace Shitemon.BattleSystem
             this.enemy = enemy;
         }
 
-        public MoveQueueObj QueueMove(Move move, Mon user, Mon target, ContentManager contentManager)
+        public EffectQueueObject QueueMove(MoveArgs moveArgs, ContentManager contentManager)
         {
-            string str = string.Format("sprites/moves/{0}", move.asset_name);
+            string str = string.Format("sprites/moves/{0}", moveArgs.MoveUsed.asset_name);
 
 
-            var anim_move = new BattleAnimation(2f, contentManager.Load<Texture2D>(str), target.renderData.sprite_dest, target.renderData.sprite_rect);
+            var anim_move = new BattleAnimation(2f, contentManager.Load<Texture2D>(str), moveArgs.Target.renderData.sprite_dest, moveArgs.Target.renderData.sprite_rect);
 
 
             // TODO: Implement more animations
             anim_move.HookRender(MoveDelegateBank.MoveBlinkRender);
-            //if(move.type == TYPECHART.Robotic)
-            //{
-            //    anim_move.HookRender(MoveDelegateBank.MoveBlinkRender);
-            //}
-            //else if (move.type == TYPECHART.Fire)
-            //{
-
-            //}
 
 
-            // Invoke move delegate and save the result
-            var moveResult = move.moveDelegate(user, target, move, out int damage);
-
-            var anim_healthbar = new BattleAnimation(this, target, damage);
+            var moveResult = moveArgs.MoveUsed.moveDelegate(moveArgs);
 
 
-            if (move.move_type == MOVE_TYPE.Damage)
+            var anim_healthbar = new BattleAnimation(this, moveArgs.Target, moveResult.OutputDamage);
+
+
+            if (moveArgs.MoveUsed.move_type == MOVE_TYPE.Damage)
             {
                 anim_healthbar.HookUpdate(MoveDelegateBank.DamageUpdate);
             }
@@ -79,16 +71,16 @@ namespace Shitemon.BattleSystem
             };
 
 
-            var q = new MoveQueueObj()
+            var q = new EffectQueueObject()
             {
                 Animations = arr,
-                Move = move,
+                Move = moveArgs.MoveUsed,
                 MoveResult = moveResult,
-                User = user,
-                Target = target
+                User = moveArgs.User,
+                Target = moveArgs.Target
             };
 
-            effect_que.Add(new List<MoveQueueObj>
+            effect_que.Add(new List<EffectQueueObject>
             {
                 q
             });
@@ -135,7 +127,56 @@ namespace Shitemon.BattleSystem
             {
                 if (effect_que[0].Count == 0)
                 {
-                    effect_que.RemoveAt(0);
+                    bool player_died = (player.stats.GetHealthPercentage() <= 0);
+                    bool enemy_died = (enemy.stats.GetHealthPercentage() <= 0);
+
+
+
+                    if (player_died || enemy_died)
+                    {
+                        //bool player_prio = false;
+                        //if (effect_que[0][0].User.Equals(player))
+                        //{
+                        //    player_prio = true;
+                        //}
+
+                        effect_que.Clear();
+
+                        var e = new EffectQueueObject
+                        {
+                            Animations = new BattleAnimation[1]
+                        };
+
+                        e.Animations[0] = new BattleAnimation(this, null, 4f)
+                        {
+                            animRenderDelegate = BattleAnimation.Render_DeathAnimation
+                        };
+
+                        e.AnimEnded += Me
+                        var list = new List<EffectQueueObject>
+                        {
+                            e
+                        };
+
+                        if (enemy_died)
+                        {
+                            e.Animations[0].mon = enemy;
+                        }
+                        if (player_died)
+                        {
+                            e.Animations[0].mon = player;
+                        }
+
+
+                        effect_que.Add(list);
+
+                    }
+                    else // Else here cuz otherwise we crash cuz stuff was cleared in if statement above.
+                    {
+                        effect_que.RemoveAt(0);
+                    }
+
+
                 }
                 else
                 {
@@ -155,6 +196,8 @@ namespace Shitemon.BattleSystem
                                 if (anim.anim_active)
                                 {
                                     m.OnAnimStarted(); // will only trigger once inside
+
+                                    // Run the update logic of animation
                                     anim.Update(delta);
 
                                     if (anim.anim_active)
@@ -188,15 +231,20 @@ namespace Shitemon.BattleSystem
             }
             else // State stuff, advance states
             {
-                if (player.stats.GetHealthPercentage() == 0)
-                {
+                // Update method is here when player is selecting menus and moves etc.
 
-                }
 
-                if (enemy.stats.GetHealthPercentage() == 0)
-                {
+                //if (player.stats.GetHealthPercentage() <= 0)
+                //{
+                //    Console.WriteLine("Player dieded!");
+                //}
 
-                }
+                //if (enemy.stats.GetHealthPercentage() <= 0)
+                //{
+                //    Console.WriteLine("Enemy dieded!");
+                //}
+
+
             }
 
             Update_UI();
