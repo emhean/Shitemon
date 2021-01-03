@@ -125,14 +125,20 @@ namespace Shitemon.BattleSystem
             // If animations are queded we go in here else we advance states
             if (effect_que.Count > 0)
             {
-                if (effect_que[0].Count == 0)
+
+
+                if (effect_que[0].Count == 0) // we go in here when no battle animations are queued.
                 {
+                    // creates a bool and sets player_died to true if playert is dead, else false.
                     bool player_died = (player.stats.GetHealthPercentage() <= 0);
+
+                    // creates a bool and sets enemy to true if enemy is dead, else false.
                     bool enemy_died = (enemy.stats.GetHealthPercentage() <= 0);
 
 
-
-                    if (player_died || enemy_died)
+                    // TODO: Implement if either dies.
+                    // if either player or enemy is dead then
+                    if (player_died || enemy_died)  // if in here, then battle is over. 
                     {
                         //bool player_prio = false;
                         //if (effect_que[0][0].User.Equals(player))
@@ -140,7 +146,7 @@ namespace Shitemon.BattleSystem
                         //    player_prio = true;
                         //}
 
-                        effect_que.Clear();
+                        effect_que.Clear(); // then we clear the effects
 
                         var e = new EffectQueueObject
                         {
@@ -151,6 +157,7 @@ namespace Shitemon.BattleSystem
                         {
                             animRenderDelegate = BattleAnimation.Render_DeathAnimation
                         };
+
 
                         // TODO: Some animation I don't remember what I was doing here 4 months ago.
                         // ?? e.AnimEnded += Me
@@ -175,14 +182,14 @@ namespace Shitemon.BattleSystem
                     }
                     else // Else here cuz otherwise we crash cuz stuff was cleared in if statement above.
                     {
+                        // some type of temporary fail safe
                         effect_que.RemoveAt(0);
                     }
 
 
                 }
-                else
+                else //  There are animations to resolve. Don't touch this.
                 {
-
                     bool wait = false;
 
                     for (int i = 0; i < effect_que[0].Count; ++i)
@@ -231,10 +238,9 @@ namespace Shitemon.BattleSystem
 
                 }
             }
-            else // State stuff, advance states
+            else // Pretty unsure about if this is needed. // State stuff, advance states
             {
                 // Update method is here when player is selecting menus and moves etc.
-
 
                 //if (player.stats.GetHealthPercentage() <= 0)
                 //{
@@ -267,6 +273,9 @@ namespace Shitemon.BattleSystem
             mon.renderData.healthbar_rect.Width = mon.stats.GetHealthPercentage();
         }
 
+        /// <summary>
+        /// Updates the UI logic.
+        /// </summary>
         private void Update_UI()
         {
             Update_UI_Healthbar(player);
@@ -277,7 +286,9 @@ namespace Shitemon.BattleSystem
         }
 
 
-
+        /// <summary>
+        /// Rendering logic.
+        /// </summary>
         public void Render(SpriteBatch spriteBatch, MessageBox messageBox)
         {
             messageBox.Render(spriteBatch);

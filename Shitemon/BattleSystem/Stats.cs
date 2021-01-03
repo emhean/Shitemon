@@ -2,10 +2,15 @@
 
 namespace Shitemon.BattleSystem
 {
+    /// <summary>
+    /// A stat wrapper class for shitmons.
+    /// </summary>
     public class Stats
     {
+        // The level 
         public int level = 1;
 
+        // other stats
         public int health, health_max;
         public int attack, attack_max;
         public int defence, defence_max;
@@ -52,7 +57,10 @@ namespace Shitemon.BattleSystem
             }
         }
         
-
+        /// <summary>
+        /// Gets the percentage of the health.
+        /// </summary>
+        /// <returns></returns>
         public int GetHealthPercentage()
         {
             return GetStatPercentage(health, health_max);

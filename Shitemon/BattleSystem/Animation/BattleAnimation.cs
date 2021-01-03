@@ -3,6 +3,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Shitemon.BattleSystem
 {
+    /// <summary>
+    /// An animation class used during battle phases.
+    /// </summary>
     public class BattleAnimation
     {
         public float anim_time;

@@ -2,15 +2,19 @@
 
 namespace Shitemon.BattleSystem
 {
+    /// <summary>
+    /// The logic of a move that a shitmon has.
+    /// </summary>
     public class Move
     {
-        public delegate MoveResult MoveDelegate(MoveArgs moveArgs);
+        // The function delegate that returns a result of the move.
+        public delegate MoveResult MoveDelegate(MoveArgs moveArgs); // MoveArgs is event args for move
 
         public string name;
-        public string asset_name;
-        public int pp;
-        public int damage;
-        public int acc;
+        public string asset_name; // asset name such as sound effects? or texture?
+        public int pp; // power points, determines use
+        public int damage; 
+        public int acc; //accuraccy
 
         public TYPECHART type;
         public MOVE_TYPE move_type = MOVE_TYPE.NaN;

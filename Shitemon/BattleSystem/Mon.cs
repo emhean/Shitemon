@@ -6,10 +6,18 @@ using System.Threading.Tasks;
 
 namespace Shitemon.BattleSystem
 {
+    /// <summary>
+    /// The base class for a shitmon.
+    /// </summary>
     public class Mon
     {
+        // The name of the shitmon
         public string name;
+
+        // The stats of the shitmon
         public Stats stats;
+
+        // The types of the shitmon
         public TYPECHART type_1, type_2;
 
         public MonRenderData renderData;

@@ -50,6 +50,9 @@ namespace Shitemon.BattleSystem
 
 
         // DON'T TOUCH THIS
+        /// <summary>
+        /// This method is why the health bar is "animated" 
+        /// </summary>
         static public void DamageUpdate(BattleAnimation ba, float delta)
         {
             if (ba.IsModulo_Zero()) // This to make the animation a bit slower for the eyes.
